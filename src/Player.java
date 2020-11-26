@@ -28,19 +28,19 @@ public class Player {
     public boolean hasCard(Card card) {
         for (Card c : hand) {
             if (c.getRank().equals(card.getRank())) {
-                return true;    // yes, they have the card
+                return true;
             }
         }
 
-        return false;   // no, they don't
+        return false;
     }
 
     public void relinquishCard(Player player, Card card) {
         int index = findCard(card);
 
         if (index != -1) {
-            Card c = hand.remove(index);    // remove the card from this player
-            player.getHand().add(c);        // add the card to another player
+            Card c = hand.remove(index);
+            player.getHand().add(c);
 
             sortHand();
             player.sortHand();
@@ -52,12 +52,12 @@ public class Player {
             int frequency = 1;
 
             for (int j = i + 1; j < hand.size(); j++) {
-                if (hand.get(i).getRank().equals(hand.get(j).getRank())) {  // tallies cards of the same rank
+                if (hand.get(i).getRank().equals(hand.get(j).getRank())) {
                     frequency++;
                 }
             }
 
-            if (frequency == 4) {   // if we have all 4 cards, transfer them to the books list
+            if (frequency == 4) {
                 return removeSets(i);
             }
         }
@@ -66,30 +66,39 @@ public class Player {
     }
 
     public Card getCardByNeed() {
-        int index = 0;
-        int frequency = 1;
-
+        //randomize the cards that the cpu will pick
+        int count = 1;
+        ArrayList<Integer> deck = new ArrayList<>();
         for (int i = 0; i < hand.size() - 1; i++) {
-            int count = 1;
-
-            for (int j = i + 1; j < hand.size(); j++) {
-                if (hand.get(i).getRank().equals(hand.get(j).getRank())) {  // tallies cards of the same rank
-                    count++;
+            if (hand.get(i).getRank().equals(hand.get(i + 1).getRank())) {
+                count++;
+                if (i == hand.size() - 2) {
+                    deck.add(i);
+                }
+            } else {
+                if (count >= 2) {
+                    deck.add(i);
+                    count = 1;
+                } else {
+                    count = 1;
                 }
             }
-
-            if (count > frequency) {    // updates which card is the most frequently occurring
-                index = i;
-                frequency = count;
-            }
         }
+        if (deck.size() < 2) {
+            return hand.get((int) (Math.random() * hand.size()));
 
-        return hand.get(index);
+        } else {
+            return hand.get(deck.get((int) (Math.random() * deck.size())));
+        }
     }
 
-    private int findCard(Card card) {
+
+
+
+
+    private int findCard (Card card){
         for (int i = 0; i < hand.size(); i++) {
-            if (hand.get(i).getRank().equals(card.getRank())) {     // find card by rank
+            if (hand.get(i).getRank().equals(card.getRank())) {
                 return i;
             }
         }
@@ -97,11 +106,11 @@ public class Player {
         return -1;
     }
 
-    private boolean removeSets(int index) {
-        books.add(hand.get(index).getRank());   // add rank to books
+    private boolean removeSets ( int index){
+        books.add(hand.get(index).getRank());
 
         for (int i = 0; i < 4; i++) {
-            hand.remove(index);     // remove all 4 cards
+            hand.remove(index);
         }
 
         sortHand();
@@ -110,17 +119,18 @@ public class Player {
         return true;
     }
 
-    private void sortHand() {
+    private void sortHand () {
         hand.sort((a, b) -> {
             if (Card.getOrderedRank(a.getRank()) == Card.getOrderedRank(b.getRank())) {
-                return Card.getOrderedSuit(a.getSuit()) - Card.getOrderedSuit(b.getSuit());     // order by suit if
-            }                                                                                   // ranks are the same
+                return Card.getOrderedSuit(a.getSuit()) - Card.getOrderedSuit(b.getSuit());
+            }
 
-            return Card.getOrderedRank(a.getRank()) - Card.getOrderedRank(b.getRank());         // otherwise, by rank
+            return Card.getOrderedRank(a.getRank()) - Card.getOrderedRank(b.getRank());
         });
     }
 
     private void sortBooks() {
-        books.sort(Comparator.comparingInt(Card::getOrderedRank));  // sort books by rank using return
+        books.sort(Comparator.comparingInt(Card::getOrderedRank));
     }
+
 }
